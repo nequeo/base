@@ -1,8 +1,8 @@
 /* Company :       Nequeo Pty Ltd, http://www.nequeo.com.au/
-*  Copyright :     Copyright © Nequeo Pty Ltd 2014 http://www.nequeo.com.au/
+*  Copyright :     Copyright © Nequeo Pty Ltd 2016 http://www.nequeo.com.au/
 *
-*  File :          Global.h
-*  Purpose :       Global definition header.
+*  File :          GetTheLights.h
+*  Purpose :       GetTheLights class.
 *
 */
 
@@ -31,40 +31,29 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#ifndef _GLOBAL_H
-#define _GLOBAL_H
+#include "Global.h"
+#include "Allocator.h"
 
-#include "stdafx.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <windows.h>
-#include <atlbase.h>
-#include <tchar.h>
-#include <string>
-#include <iomanip>
-#include <memory>
-#include <vector>
-#include <cstring>
-
-using namespace std;
+#include <functional>
+#include <atomic>
 
 namespace Nequeo
 {
-#ifdef _UNICODE
-	typedef std::wstring TFormatString;
-#else
-	typedef std::string TFormatString;
-#endif
-
-	struct CompareStrings
+	/**
+	* Make initialization and cleanup of shared resources less painful.
+	* If you have this problem. Create a static instance of GetTheLights,
+	* have each actor call Enter the room with your callable.
+	*
+	* When you are finished with the shared resources call LeaveRoom(). The last caller will
+	* have its callable executed.
+	*/
+	class GetTheLights
 	{
-		bool operator()(const char* a, const char* b) const
-		{
-			return std::strcmp(a, b) < 0;
-		}
+	public:
+		GetTheLights();
+		void EnterRoom(std::function<void()>&&);
+		void LeaveRoom(std::function<void()>&&);
+	private:
+		std::atomic<int> m_value;
 	};
 }
-#endif
-
-#define NEQUEO_UNREFERENCED_PARAM(x) (&reinterpret_cast<const int &>(x))

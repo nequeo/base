@@ -1,8 +1,8 @@
 /* Company :       Nequeo Pty Ltd, http://www.nequeo.com.au/
-*  Copyright :     Copyright © Nequeo Pty Ltd 2014 http://www.nequeo.com.au/
+*  Copyright :     Copyright © Nequeo Pty Ltd 2016 http://www.nequeo.com.au/
 *
-*  File :          Global.h
-*  Purpose :       Global definition header.
+*  File :          GetTheLights.cpp
+*  Purpose :       GetTheLights class.
 *
 */
 
@@ -29,42 +29,35 @@ FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 OTHER DEALINGS IN THE SOFTWARE.
 */
 
-#pragma once
-
-#ifndef _GLOBAL_H
-#define _GLOBAL_H
-
 #include "stdafx.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <windows.h>
-#include <atlbase.h>
-#include <tchar.h>
-#include <string>
-#include <iomanip>
-#include <memory>
-#include <vector>
-#include <cstring>
+#include "GetTheLights.h"
 
-using namespace std;
+#include <cassert>
 
 namespace Nequeo
 {
-#ifdef _UNICODE
-	typedef std::wstring TFormatString;
-#else
-	typedef std::string TFormatString;
-#endif
-
-	struct CompareStrings
+	GetTheLights::GetTheLights() : m_value(0)
 	{
-		bool operator()(const char* a, const char* b) const
-		{
-			return std::strcmp(a, b) < 0;
-		}
-	};
-}
-#endif
+	}
 
-#define NEQUEO_UNREFERENCED_PARAM(x) (&reinterpret_cast<const int &>(x))
+	void GetTheLights::EnterRoom(std::function<void()> &&callable)
+	{
+		int cpy = ++m_value;
+		assert(cpy > 0);
+		if (cpy == 1)
+		{
+			callable();
+		}
+	}
+
+	void GetTheLights::LeaveRoom(std::function<void()> &&callable)
+	{
+		int cpy = --m_value;
+		assert(cpy >= 0);
+		if (cpy == 0)
+		{
+			callable();
+		}
+	}
+}

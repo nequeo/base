@@ -1,8 +1,8 @@
 /* Company :       Nequeo Pty Ltd, http://www.nequeo.com.au/
-*  Copyright :     Copyright © Nequeo Pty Ltd 2014 http://www.nequeo.com.au/
+*  Copyright :     Copyright © Nequeo Pty Ltd 2016 http://www.nequeo.com.au/
 *
-*  File :          Global.h
-*  Purpose :       Global definition header.
+*  File :          Base64.h
+*  Purpose :       Base64 class.
 *
 */
 
@@ -31,40 +31,46 @@ OTHER DEALINGS IN THE SOFTWARE.
 
 #pragma once
 
-#ifndef _GLOBAL_H
-#define _GLOBAL_H
-
-#include "stdafx.h"
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <windows.h>
-#include <atlbase.h>
-#include <tchar.h>
-#include <string>
-#include <iomanip>
-#include <memory>
-#include <vector>
-#include <cstring>
-
-using namespace std;
+#include "Global.h"
+#include "Array.h"
+#include "Allocator.h"
 
 namespace Nequeo
 {
-#ifdef _UNICODE
-	typedef std::wstring TFormatString;
-#else
-	typedef std::string TFormatString;
-#endif
-
-	struct CompareStrings
+	/**
+	* interface for platform specific Base64 encoding/decoding.
+	*/
+	class Base64
 	{
-		bool operator()(const char* a, const char* b) const
-		{
-			return std::strcmp(a, b) < 0;
-		}
+	public:
+		Base64(const char *encodingTable = nullptr);
+
+		/**
+		* Encode a byte buffer into a base64 stream.
+		*
+		* throws Base64Exception if encoding fails.
+		*/
+		Nequeo::String Encode(const ByteBuffer&) const;
+
+		/**
+		* Decode a base64 string into a byte buffer.
+		*/
+		ByteBuffer Decode(const Nequeo::String&) const;
+
+		/**
+		* Calculates the required length of a base64 buffer after decoding the
+		* input string.
+		*/
+		static size_t CalculateBase64DecodedLength(const Nequeo::String& b64input);
+
+		/**
+		* Calculates the length of an encoded base64 string based on the buffer being encoded
+		*/
+		static size_t CalculateBase64EncodedLength(const ByteBuffer& buffer);
+
+	private:
+		char m_mimeBase64EncodingTable[64];
+		uint8_t m_mimeBase64DecodingTable[256];
+
 	};
 }
-#endif
-
-#define NEQUEO_UNREFERENCED_PARAM(x) (&reinterpret_cast<const int &>(x))
